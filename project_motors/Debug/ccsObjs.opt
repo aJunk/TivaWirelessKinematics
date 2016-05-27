@@ -1,0 +1,1 @@
+"./main.obj" "./tm4c1294ncpdt_startup_ccs.obj" "../tm4c1294ncpdt.cmd" -l"libc.a" -l"J:\Studium\Semester_4\EMB\CCS_workspace\git\connected_launchpad_driverlib\driverlib\ccs\Debug\driverlib.lib" -l"J:\Studium\Semester_4\EMB\CCS_workspace\git\connected_launchpad_driverlib\driverlib\ccs\Debug\driverlib.lib" 
