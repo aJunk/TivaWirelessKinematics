@@ -120,35 +120,35 @@ endif
 
 # Add inputs and outputs from these tool invocations to the build variables 
 EXE_OUTPUTS += \
-project_motors.out \
+TivaWirelessKinematics.out \
 
 EXE_OUTPUTS__QUOTED += \
-"project_motors.out" \
+"TivaWirelessKinematics.out" \
 
 BIN_OUTPUTS += \
-project_motors.hex \
+TivaWirelessKinematics.hex \
 
 BIN_OUTPUTS__QUOTED += \
-"project_motors.hex" \
+"TivaWirelessKinematics.hex" \
 
 
 # All Target
-all: project_motors.out
+all: TivaWirelessKinematics.out
 
 dependents:
-	-cd J:/Studium/Semester_4/EMB/CCS_workspace/git/connected_launchpad_driverlib/driverlib/ccs/Debug && $(MAKE) clean all
+	-cd J:/Studium/Semester_4/EMB/CCS_workspace/git/connected_launchpad_driverlib/driverlib/ccs/Debug && $(MAKE) all
 
 # Tool invocations
-project_motors.out: $(OBJS) $(CMD_SRCS) $(GEN_CMDS) J:/Studium/Semester_4/EMB/CCS_workspace/git/connected_launchpad_driverlib/driverlib/ccs/Debug/driverlib.lib
+TivaWirelessKinematics.out: $(OBJS) $(CMD_SRCS) $(GEN_CMDS) J:/Studium/Semester_4/EMB/CCS_workspace/git/connected_launchpad_driverlib/driverlib/ccs/Debug/driverlib.lib
 	@echo 'Building target: $@'
 	@echo 'Invoking: ARM Linker'
-	"C:/Users/Johannes/ccs/ccsv6/tools/compiler/ti-cgt-arm_5.2.2/bin/armcl" -mv7M4 --code_state=16 --float_support=FPv4SPD16 --abi=eabi -me -g --gcc --define=ccs="ccs" --define=PART_TM4C1294NCPDT --diag_wrap=off --display_error_number --diag_warning=225 -z -m"project_motors.map" --heap_size=0 --stack_size=512 -i"C:/Users/Johannes/ccs/ccsv6/tools/compiler/ti-cgt-arm_5.2.2/lib" -i"C:/Users/Johannes/ccs/ccsv6/tools/compiler/ti-cgt-arm_5.2.2/include" --reread_libs --display_error_number --diag_wrap=off --warn_sections --xml_link_info="project_motors_linkInfo.xml" --rom_model -o "project_motors.out" $(ORDERED_OBJS)
+	"C:/Users/Johannes/ccs/ccsv6/tools/compiler/ti-cgt-arm_5.2.2/bin/armcl" -mv7M4 --code_state=16 --float_support=FPv4SPD16 --abi=eabi -me -g --gcc --define=ccs="ccs" --define=PART_TM4C1294NCPDT --diag_wrap=off --display_error_number --diag_warning=225 -z -m"TivaWirelessKinematics.map" --heap_size=0 --stack_size=512 -i"C:/Users/Johannes/ccs/ccsv6/tools/compiler/ti-cgt-arm_5.2.2/lib" -i"C:/Users/Johannes/ccs/ccsv6/tools/compiler/ti-cgt-arm_5.2.2/include" --reread_libs --display_error_number --diag_wrap=off --warn_sections --xml_link_info="TivaWirelessKinematics_linkInfo.xml" --rom_model -o "TivaWirelessKinematics.out" $(ORDERED_OBJS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
-project_motors.hex: $(EXE_OUTPUTS)
+TivaWirelessKinematics.hex: $(EXE_OUTPUTS)
 	@echo 'Invoking: ARM Hex Utility'
-	"C:/Users/Johannes/ccs/ccsv6/tools/compiler/ti-cgt-arm_5.2.2/bin/armhex"  -o "project_motors.hex" $(EXE_OUTPUTS__QUOTED)
+	"C:/Users/Johannes/ccs/ccsv6/tools/compiler/ti-cgt-arm_5.2.2/bin/armhex"  -o "TivaWirelessKinematics.hex" $(EXE_OUTPUTS__QUOTED)
 	@echo 'Finished building: $@'
 	@echo ' '
 
