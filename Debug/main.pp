@@ -17,6 +17,7 @@ main.obj: J:/Studium/Semester_4/EMB/CCS_workspace/git/connected_launchpad_driver
 main.obj: J:/Studium/Semester_4/EMB/CCS_workspace/git/connected_launchpad_driverlib/driverlib/sysctl.h
 main.obj: J:/Studium/Semester_4/EMB/CCS_workspace/git/connected_launchpad_driverlib/driverlib/interrupt.h
 main.obj: J:/Studium/Semester_4/EMB/CCS_workspace/git/connected_launchpad_driverlib/driverlib/systick.h
+main.obj: ../functions.h
 
 ../main.c: 
 C:/Users/Johannes/ccs/ccsv6/tools/compiler/ti-cgt-arm_5.2.2/include/stdint.h: 
@@ -35,3 +36,4 @@ J:/Studium/Semester_4/EMB/CCS_workspace/git/connected_launchpad_driverlib/inc/hw
 J:/Studium/Semester_4/EMB/CCS_workspace/git/connected_launchpad_driverlib/driverlib/sysctl.h: 
 J:/Studium/Semester_4/EMB/CCS_workspace/git/connected_launchpad_driverlib/driverlib/interrupt.h: 
 J:/Studium/Semester_4/EMB/CCS_workspace/git/connected_launchpad_driverlib/driverlib/systick.h: 
+../functions.h: 

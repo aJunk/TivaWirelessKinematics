@@ -7,26 +7,32 @@ CMD_SRCS += \
 ../tm4c1294ncpdt.cmd 
 
 C_SRCS += \
+../functions.c \
 ../main.c \
 ../tm4c1294ncpdt_startup_ccs.c 
 
 OBJS += \
+./functions.obj \
 ./main.obj \
 ./tm4c1294ncpdt_startup_ccs.obj 
 
 C_DEPS += \
+./functions.pp \
 ./main.pp \
 ./tm4c1294ncpdt_startup_ccs.pp 
 
 C_DEPS__QUOTED += \
+"functions.pp" \
 "main.pp" \
 "tm4c1294ncpdt_startup_ccs.pp" 
 
 OBJS__QUOTED += \
+"functions.obj" \
 "main.obj" \
 "tm4c1294ncpdt_startup_ccs.obj" 
 
 C_SRCS__QUOTED += \
+"../functions.c" \
 "../main.c" \
 "../tm4c1294ncpdt_startup_ccs.c" 
 

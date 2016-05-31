@@ -10,6 +10,7 @@ GEN_OPTS__FLAG :=
 GEN_CMDS__FLAG := 
 
 ORDERED_OBJS += \
+"./functions.obj" \
 "./main.obj" \
 "./tm4c1294ncpdt_startup_ccs.obj" \
 "../tm4c1294ncpdt.cmd" \
@@ -155,8 +156,8 @@ TivaWirelessKinematics.hex: $(EXE_OUTPUTS)
 # Other Targets
 clean:
 	-$(RM) $(EXE_OUTPUTS__QUOTED)$(BIN_OUTPUTS__QUOTED)
-	-$(RM) "main.pp" "tm4c1294ncpdt_startup_ccs.pp" 
-	-$(RM) "main.obj" "tm4c1294ncpdt_startup_ccs.obj" 
+	-$(RM) "functions.pp" "main.pp" "tm4c1294ncpdt_startup_ccs.pp" 
+	-$(RM) "functions.obj" "main.obj" "tm4c1294ncpdt_startup_ccs.obj" 
 	-@echo 'Finished clean'
 	-@echo ' '
 

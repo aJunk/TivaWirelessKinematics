@@ -9,13 +9,7 @@
 #include "driverlib/sysctl.h"
 #include "driverlib/interrupt.h"
 #include "driverlib/systick.h"
-
-typedef struct udef_GPIO_Pin{
-	uint32_t peripheral;
-	uint32_t pin_type;
-	uint32_t port_base;
-	uint8_t pin;
-}udef_GPIO_Pin;
+#include "functions.h"
 
 typedef struct motors {
 	udef_GPIO_Pin ms1;
@@ -41,10 +35,6 @@ typedef struct move {
 
 /* ----------------------- DEFINES ----------------------- */
 /* GENERAL */
-#define LOW 0
-#define HIGH UINT8_MAX
-#define OUTPUT GPIO_PIN_TYPE_STD
-#define INPUT GPIO_PIN_TYPE_STD_WPU
 #define NULL 0
 
 /* MOTORS */	//For 1 turn: 1/1: 32; 1/2: 64; 1/4: 128; 1/8: 256
@@ -60,14 +50,6 @@ typedef struct move {
 /* TIMER */
 #define TIMER_SCALE_100MS 10		//triggers adc every 100 ms
 #define TIMER_SCALE TIMER_SCALE_100MS
-#define TIMER_RES 100				//timer resolution -> Time = Timer_Count * Timer_Res
-#define TIMER_MAX_COUNT -1			//If -1 is assigned to an unsigned int this resolves to the biggest available number for this data type (two's complement)
-#define TIMER_MIN_COUNT 2			//standard: 200 ms
-#if TIMER_MIN_COUNT < 1
-	#error "TIMER_MIN_COUNT must at least be 1"
-#endif
-#define DELAYTIME 100000/1.5
-#define F_CPU 120000000
 
 /* ----------------------- GLOBAL VARIABLES ----------------------- */
 /* MOTORS */
@@ -85,20 +67,7 @@ motors motor2 = {	{SYSCTL_PERIPH_GPIOE, OUTPUT, GPIO_PORTE_BASE, GPIO_PIN_4},
 					{SYSCTL_PERIPH_GPIOC, OUTPUT, GPIO_PORTC_BASE, GPIO_PIN_6},
 					CW_TURN, FULL_STP, 0};
 
-/* LEDS */
-udef_GPIO_Pin leds[4] = {	{SYSCTL_PERIPH_GPION, OUTPUT, GPIO_PORTN_BASE, GPIO_PIN_1},
-							{SYSCTL_PERIPH_GPION, OUTPUT, GPIO_PORTN_BASE, GPIO_PIN_0},
-							{SYSCTL_PERIPH_GPIOF, OUTPUT, GPIO_PORTF_BASE, GPIO_PIN_4},
-							{SYSCTL_PERIPH_GPIOF, OUTPUT, GPIO_PORTF_BASE, GPIO_PIN_0},
-							};
-
-/* BUTTONS */
-udef_GPIO_Pin buttons[2] = {	{SYSCTL_PERIPH_GPIOJ, INPUT, GPIO_PORTJ_BASE, GPIO_PIN_0},
-								{SYSCTL_PERIPH_GPIOJ, INPUT, GPIO_PORTJ_BASE, GPIO_PIN_1}
-								};
-
 /* TIMER */
-volatile uint32_t gui32_timeout = TIMER_MIN_COUNT;
 volatile uint32_t gui32_SysClock = 0;
 
 /* MOTORS */
@@ -110,54 +79,29 @@ volatile float angleM2 = 0;
 
 /* ----------------------- FUNCTION PROTOTYPES ----------------------- */
 void ISR_gpioUsrSW (void);								//Interrupt service Routine to Handle UsrSW Interrupt
-void ISR_SystickHandler(void);
+void ISR_SystickHandler(void);							//Interrupt service Routine
 void inithardware (void);								//Initialises Hardware (inputs/outputs)
 void initinterrupts (void);								//Initialises Interrupts
 void makeStep (motors *motor);
-void ms_delay (uint32_t ms);
-void udef_GPIO_Pin_set_function (udef_GPIO_Pin *pins, uint8_t num_of_pins);
-void GPIO_Pin_write (udef_GPIO_Pin *pin2set, uint32_t h_or_l);
 void setMotorMode (motors *motor, uint32_t mode);
 void setDirection (motors *motor, uint32_t dir);
 int addMove (uint32_t mode, uint32_t direction1, uint32_t direction2, uint32_t numMicroSteps1, uint32_t numMicroSteps2, uint32_t doAgainFlag);
 void calcAngles(void);
 
 /* ----------------------- FUNCTIONS ----------------------- */
-void ISR_gpioUsrSW(void) {
-    if(GPIOIntStatus(buttons[0].port_base, false) & buttons[0].pin) {	//if USRSW1 pressed
-        GPIOIntClear(buttons[0].port_base, buttons[0].pin);	    	//Clear the GPIO interrupt
-    	//something happens
-        addMove (FULL_STP, CW_TURN, CW_TURN, GEAR_CONV_FACTOR*32, 0, LOW);
-    }
-    else {
-        GPIOIntClear(buttons[1].port_base, buttons[1].pin);	    	//Clear the GPIO interrupt
-    	//something happens
-        addMove (HALF_STP, CCW_TURN, CCW_TURN, 0, GEAR_CONV_FACTOR*1, LOW);
-    }
-}
+int main(void) {
+   inithardware();
+   initinterrupts();
+   IntMasterEnable();		//Enable Processor Interrupts
 
-void udef_GPIO_Pin_set_function(udef_GPIO_Pin *pins, uint8_t num_of_pins){
-	int i = 0;
-    uint32_t _ui32Strength;
-    uint32_t _ui32PinType;
-
-	for( i = 0; i < num_of_pins; i++){
-
-		if(!SysCtlPeripheralReady(pins[i].peripheral)){
-			SysCtlPeripheralEnable(pins[i].peripheral);
-		}
-
-		while(!SysCtlPeripheralReady(pins[i].peripheral))ms_delay(1);
-
-		if(pins[i].pin_type == INPUT){
-			GPIOPinTypeGPIOInput(pins[i].port_base, pins[i].pin);
-		}else if(pins[i].pin_type == OUTPUT){
-			GPIOPinTypeGPIOOutput(pins[i].port_base, pins[i].pin);
-		}
-
-		GPIOPadConfigGet(pins[i].port_base, pins[i].pin, &_ui32Strength, &_ui32PinType);
-		GPIOPadConfigSet(pins[i].port_base, pins[i].pin, _ui32Strength, pins[i].pin_type);
-	}
+   addMove (FULL_STP, CW_TURN, CW_TURN, GEAR_CONV_FACTOR*16, 0, LOW);
+   addMove (FULL_STP, CW_TURN, CW_TURN, 0, GEAR_CONV_FACTOR*16, LOW);
+ //  addMove (FULL_STP, CCW_TURN, CCW_TURN, GEAR_CONV_FACTOR*128, GEAR_CONV_FACTOR*128, LOW);
+ //  addMove (FULL_STP, CW_TURN, CCW_TURN, 64*16, 64*32, LOW);
+ //  ms_delay(16000);
+//   addMove (FULL_STP, CW_TURN, CW_TURN, 0, 64*8, LOW);
+ //  addMove (FULL_STP, CCW_TURN, CCW_TURN, 64*16, 64*8, LOW);
+   while(1);
 }
 
 void inithardware () {
@@ -191,15 +135,17 @@ void inithardware () {
 	setDirection(&motor2, CW_TURN);
 }
 
-void GPIO_Pin_write (udef_GPIO_Pin *pin2set, uint32_t h_or_l){
-	GPIOPinWrite(pin2set->port_base, pin2set->pin, h_or_l);
-}
-
-void ms_delay(uint32_t ms){
-	if(ms != 0){
-		ms = (F_CPU/3000) * ms;
-		SysCtlDelay(ms);
-	}
+void ISR_gpioUsrSW(void) {
+    if(GPIOIntStatus(buttons[0].port_base, false) & buttons[0].pin) {	//if USRSW1 pressed
+        GPIOIntClear(buttons[0].port_base, buttons[0].pin);	    	//Clear the GPIO interrupt
+    	//something happens
+        addMove (FULL_STP, CW_TURN, CW_TURN, GEAR_CONV_FACTOR*32, 0, LOW);
+    }
+    else {
+        GPIOIntClear(buttons[1].port_base, buttons[1].pin);	    	//Clear the GPIO interrupt
+    	//something happens
+        addMove (HALF_STP, CCW_TURN, CCW_TURN, 0, GEAR_CONV_FACTOR*1, LOW);
+    }
 }
 
 void setMotorMode (motors *motor, uint32_t mode){
@@ -246,21 +192,6 @@ void initinterrupts () {
 void calcAngles(void){
 	angleM1 = (motor1.numTotalMicroSteps)*360 / ((MICRO_STP*GEAR_CONV_FACTOR));
 	angleM2 = (motor2.numTotalMicroSteps)*360 / ((MICRO_STP*GEAR_CONV_FACTOR));
-}
-
-int main(void) {
-   inithardware();
-   initinterrupts();
-   IntMasterEnable();		//Enable Processor Interrupts
-
-   addMove (FULL_STP, CW_TURN, CW_TURN, GEAR_CONV_FACTOR*16, 0, LOW);
-   addMove (FULL_STP, CW_TURN, CW_TURN, 0, GEAR_CONV_FACTOR*16, LOW);
- //  addMove (FULL_STP, CCW_TURN, CCW_TURN, GEAR_CONV_FACTOR*128, GEAR_CONV_FACTOR*128, LOW);
- //  addMove (FULL_STP, CW_TURN, CCW_TURN, 64*16, 64*32, LOW);
- //  ms_delay(16000);
-//   addMove (FULL_STP, CW_TURN, CW_TURN, 0, 64*8, LOW);
- //  addMove (FULL_STP, CCW_TURN, CCW_TURN, 64*16, 64*8, LOW);
-   while(1);
 }
 
 void makeStep (motors *motor){
