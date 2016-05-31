@@ -19,6 +19,7 @@ motors motor2 = {	{SYSCTL_PERIPH_GPIOE, OUTPUT, GPIO_PORTE_BASE, GPIO_PIN_4},
 volatile move gui32_moveQ[MAX_NUM_MOVES];
 volatile uint32_t gui32_actIdx2move = 0;
 volatile uint32_t gui32_actIdx2add = 0;
+volatile uint32_t gui32_numMovesInQ = 0;
 volatile float angleM1 = 0;
 volatile float angleM2 = 0;
 
@@ -69,10 +70,14 @@ void makeStep (motors *motor){
 			gui32_moveQ[gui32_actIdx2move].numMicroSteps2--;
 		}
 		calcAngles();
+		if(gui32_moveQ[gui32_actIdx2move].numMicroSteps1 == 0 && gui32_moveQ[gui32_actIdx2move].numMicroSteps2 == 0){
+			gui32_numMovesInQ--;
+			changeActualMove();
+		}
 	}
 }
 
-void addMove (uint32_t mode, uint32_t direction1, uint32_t direction2, uint32_t numMicroSteps1, uint32_t numMicroSteps2, uint32_t doAgainFlag) {
+void addMove (uint32_t mode, uint32_t direction1, uint32_t direction2, uint32_t numMicroSteps1, uint32_t numMicroSteps2, uint32_t numDoAgain) {
 	uint8_t noFreeSpace = 1;	//set to 0 if there is a free space in the queue
 	uint8_t i = 0;
 
@@ -94,6 +99,20 @@ void addMove (uint32_t mode, uint32_t direction1, uint32_t direction2, uint32_t 
 	gui32_moveQ[gui32_actIdx2add].direction2 = direction2;
 	gui32_moveQ[gui32_actIdx2add].numMicroSteps1 = numMicroSteps1;
 	gui32_moveQ[gui32_actIdx2add].numMicroSteps2 = numMicroSteps2;
-	gui32_moveQ[gui32_actIdx2add].doAgainFlag = doAgainFlag;
+	gui32_moveQ[gui32_actIdx2add].numDoAgain = numDoAgain;
+	gui32_numMovesInQ++;
 	return;
+}
+
+void changeActualMove (){
+	if(gui32_moveQ[gui32_actIdx2move].numDoAgain != 0){
+		gui32_moveQ[gui32_actIdx2move].numDoAgain--;
+        addMove (gui32_moveQ[gui32_actIdx2move].mode, gui32_moveQ[gui32_actIdx2move].direction1, gui32_moveQ[gui32_actIdx2move].direction2, gui32_moveQ[gui32_actIdx2move].numMicroSteps1, gui32_moveQ[gui32_actIdx2move].numMicroSteps2, gui32_moveQ[gui32_actIdx2move].numDoAgain);
+	}
+	if(gui32_actIdx2move == MAX_NUM_MOVES-1) gui32_actIdx2move = 0;		//if end of queue -> start over again
+	else gui32_actIdx2move++;
+	setDirection(&motor1, gui32_moveQ[gui32_actIdx2move].direction1);
+	setMotorMode(&motor1, gui32_moveQ[gui32_actIdx2move].mode);
+	setDirection(&motor2, gui32_moveQ[gui32_actIdx2move].direction2);
+	setMotorMode(&motor2, gui32_moveQ[gui32_actIdx2move].mode);
 }

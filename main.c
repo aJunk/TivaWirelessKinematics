@@ -95,12 +95,12 @@ void ISR_gpioUsrSW(void) {
     if(GPIOIntStatus(buttons[0].port_base, false) & buttons[0].pin) {	//if USRSW1 pressed
         GPIOIntClear(buttons[0].port_base, buttons[0].pin);	    	//Clear the GPIO interrupt
     	//something happens
-        addMove (FULL_STP, CW_TURN, CW_TURN, GEAR_CONV_FACTOR*32, 0, LOW);
+        addMove (FULL_STP, CW_TURN, CW_TURN, GEAR_CONV_FACTOR*32, 0, 0);
     }
     else {
         GPIOIntClear(buttons[1].port_base, buttons[1].pin);	    	//Clear the GPIO interrupt
     	//something happens
-        addMove (HALF_STP, CCW_TURN, CCW_TURN, 0, GEAR_CONV_FACTOR*1, LOW);
+        addMove (HALF_STP, CCW_TURN, CCW_TURN, 0, GEAR_CONV_FACTOR*2, 1);
     }
 }
 
@@ -122,7 +122,7 @@ void ISR_SystickHandler(void) {
 	if (gui32_moveQ[gui32_actIdx2move].numMicroSteps1 > 0){
 		if(systickcounter >= accFactor1)	{	//counter läuft 1000 mal pro sekunde über
 			makeStep(&motor1);
-			if (gui32_moveQ[gui32_actIdx2move].numMicroSteps2 == 0) systickcounter = 0; //otherwise motor2 would not move becuase systickcounter is set to 0
+			if (gui32_moveQ[gui32_actIdx2move].numMicroSteps2 == 0) systickcounter = 0; //otherwise motor2 would not move because systickcounter is set to 0
 		}
 	}
 	if((systickcounterTotal % accSpeed) == 0 && accFactor2 != 2) accFactor2--;	//2 is final accFactor
@@ -136,14 +136,6 @@ void ISR_SystickHandler(void) {
 		accFactor1 = 6;
 		accFactor2 = 6;
 		systickcounterTotal = 0;
-
-		if(gui32_actIdx2move == MAX_NUM_MOVES-1) gui32_actIdx2move = 0;		//if end of queue -> start over again
-		else gui32_actIdx2move++;
-		setDirection(&motor1, gui32_moveQ[gui32_actIdx2move].direction1);
-		setMotorMode(&motor1, gui32_moveQ[gui32_actIdx2move].mode);
-		setDirection(&motor2, gui32_moveQ[gui32_actIdx2move].direction2);
-		setMotorMode(&motor2, gui32_moveQ[gui32_actIdx2move].mode);
 	}
+	if(gui32_moveQ[gui32_actIdx2move].numMicroSteps1 == 0 && gui32_moveQ[gui32_actIdx2move].numMicroSteps2 == 0 && gui32_numMovesInQ != 0) changeActualMove();	//look for new moves in Q
 }
-
-/* TODO: Funktion die gerufen wird und mode/direction etc. setzt wenn neuer move abgearbeitet wird*/
