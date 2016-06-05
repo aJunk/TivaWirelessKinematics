@@ -92,32 +92,29 @@ void ISR_gpioUsrSW(void) {
 }
 
 void ISR_SystickHandler(void) {
-	static uint8_t systickcounter = 0;
-	static uint8_t systickcounterTotal = 0;
-	static uint8_t accFactor1 = 6;		//how slow should acceloration start (higher = slower)
-	static uint8_t accFactor2 = 6;		//how slow should acceloration start (higher = slower)
+	static uint32_t systickcounter = 0;
+	static uint32_t systickcounterTotal = 0;
+	static uint8_t accFactor1 = 30;		//how slow should acceloration start (higher = slower)
+	static uint8_t accFactor2 = 30;		//how slow should acceloration start (higher = slower)
 	static uint8_t accSpeed = 100;		//how fast should it become faster (lower = faster)
+	uint8_t finalAccFactor1 = 2;
+	uint8_t finalAccFactor2 = 2;
 
 	systickcounter++;
 	systickcounterTotal++;
 
-	if((systickcounterTotal % accSpeed) == 0 && accFactor1 != 2) accFactor1--;	//2 is final accFactor
+	if((systickcounterTotal % accSpeed) == 0 && accFactor1 != finalAccFactor1) accFactor1--;
 	if (gui32_moveQ[gui32_actIdx2move].numSteps[0] > 0){
 		if(systickcounter >= accFactor1)	{	//counter läuft 1000 mal pro sekunde über
 			makeStep(&motor1);
 			if (gui32_moveQ[gui32_actIdx2move].numSteps[1] == 0) systickcounter = 0; //otherwise motor2 would not move because systickcounter is set to 0
 		}
-	}
-	if((systickcounterTotal % accSpeed) == 0 && accFactor2 != 2) accFactor2--;	//2 is final accFactor
+	} else accFactor1 = 30;
+	if((systickcounterTotal % accSpeed) == 0 && accFactor2 != finalAccFactor2) accFactor2--;
 	if (gui32_moveQ[gui32_actIdx2move].numSteps[1] > 0){
 		if(systickcounter >= accFactor2)	{	//counter läuft 1000 mal pro sekunde über
 			makeStep(&motor2);
 			systickcounter = 0;
 		}
-	}
-	if(gui32_moveQ[gui32_actIdx2move].numSteps[0] == 0 && gui32_moveQ[gui32_actIdx2move].numSteps[1] == 0) {
-		accFactor1 = 6;
-		accFactor2 = 6;
-		systickcounterTotal = 0;
-	}
+	} else accFactor2 = 30;
 }
