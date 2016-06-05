@@ -1,7 +1,7 @@
 ******************************************************************************
                   TI ARM Linker PC v5.2.2                      
 ******************************************************************************
->> Linked Sun Jun 05 19:40:42 2016
+>> Linked Sun Jun 05 23:44:31 2016
 
 OUTPUT FILE NAME:   <TivaWirelessKinematics.out>
 ENTRY POINT SYMBOL: "_c_int00"  address: 00000fe5
@@ -11,7 +11,7 @@ MEMORY CONFIGURATION
 
          name            origin    length      used     unused   attr    fill
 ----------------------  --------  ---------  --------  --------  ----  --------
-  FLASH                 00000000   00100000  0000186e  000fe792  R  X
+  FLASH                 00000000   00100000  00001870  000fe790  R  X
   SRAM                  20000000   00040000  000006fc  0003f904  RW X
 
 
@@ -19,11 +19,11 @@ SEGMENT ALLOCATION MAP
 
 run origin  load origin   length   init length attrs members
 ----------  ----------- ---------- ----------- ----- -------
-00000000    00000000    00001870   00001870    r-x
+00000000    00000000    00001878   00001878    r-x
   00000000    00000000    00000208   00000208    r-- .intvecs
   00000208    00000208    00001172   00001172    r-x .text
-  0000137c    0000137c    000003b4   000003b4    r-- .const
-  00001730    00001730    00000140   00000140    r-- .cinit
+  0000137c    0000137c    000003b6   000003b6    r-- .const
+  00001738    00001738    00000140   00000140    r-- .cinit
 20000000    20000000    000006fc   00000000    rw-
   20000000    20000000    0000026c   00000000    rw- .vtable
   2000026c    2000026c    00000200   00000000    rw- .stack
@@ -89,7 +89,7 @@ section   page    origin      length       input sections
                   00001370    00000006     rtsv7M4_T_le_v4SPD16_eabi.lib : copy_decompress_rle.obj (.text:decompress:rle24)
                   00001376    00000004                                   : pre_init.obj (.text)
 
-.const     0    0000137c    000003b4     
+.const     0    0000137c    000003b6     
                   0000137c    00000120     driverlib.lib : sysctl.obj (.const:g_pppui32XTALtoVCO)
                   0000149c    000000c0                   : gpio.obj (.const:g_ppui32GPIOIntMapBlizzard)
                   0000155c    000000c0                   : gpio.obj (.const:g_ppui32GPIOIntMapSnowflake)
@@ -97,14 +97,15 @@ section   page    origin      length       input sections
                   0000168c    0000006c                   : sysctl.obj (.const:g_pui32Xtals)
                   000016f8    00000030                   : sysctl.obj (.const:g_sXTALtoMEMTIM)
                   00001728    00000008                   : sysctl.obj (.const)
+                  00001730    00000002     main.obj (.const:.string)
 
-.cinit     0    00001730    00000140     
-                  00001730    0000010a     (.cinit..data.load) [load image, compression = rle]
-                  0000183a    00000002     --HOLE-- [fill = 0]
-                  0000183c    0000000c     (__TI_handler_table)
-                  00001848    00000008     (.cinit..bss.load) [load image, compression = zero_init]
-                  00001850    00000008     (.cinit..vtable.load) [load image, compression = zero_init]
-                  00001858    00000018     (__TI_cinit_table)
+.cinit     0    00001738    00000140     
+                  00001738    0000010a     (.cinit..data.load) [load image, compression = rle]
+                  00001842    00000002     --HOLE-- [fill = 0]
+                  00001844    0000000c     (__TI_handler_table)
+                  00001850    00000008     (.cinit..bss.load) [load image, compression = zero_init]
+                  00001858    00000008     (.cinit..vtable.load) [load image, compression = zero_init]
+                  00001860    00000018     (__TI_cinit_table)
 
 .init_array 
 *          0    00000000    00000000     UNINITIALIZED
@@ -139,15 +140,15 @@ section   page    origin      length       input sections
 
 LINKER GENERATED COPY TABLES
 
-__TI_cinit_table @ 00001858 records: 3, size/record: 8, table size: 24
-	.data: load addr=00001730, load size=0000010a bytes, run addr=2000046c, run size=00000150 bytes, compression=rle
-	.bss: load addr=00001848, load size=00000008 bytes, run addr=200005bc, run size=00000140 bytes, compression=zero_init
-	.vtable: load addr=00001850, load size=00000008 bytes, run addr=20000000, run size=0000026c bytes, compression=zero_init
+__TI_cinit_table @ 00001860 records: 3, size/record: 8, table size: 24
+	.data: load addr=00001738, load size=0000010a bytes, run addr=2000046c, run size=00000150 bytes, compression=rle
+	.bss: load addr=00001850, load size=00000008 bytes, run addr=200005bc, run size=00000140 bytes, compression=zero_init
+	.vtable: load addr=00001858, load size=00000008 bytes, run addr=20000000, run size=0000026c bytes, compression=zero_init
 
 
 LINKER GENERATED HANDLER TABLE
 
-__TI_handler_table @ 0000183c records: 3, size/record: 4, table size: 12
+__TI_handler_table @ 00001844 records: 3, size/record: 4, table size: 12
 	index: 0, handler: __TI_zero_init
 	index: 1, handler: __TI_decompress_rle24
 	index: 2, handler: __TI_decompress_none
@@ -191,10 +192,10 @@ UNDEFED   SHT$$INIT_ARRAY$$Limit
 2000046c  __STACK_END               
 00000200  __STACK_SIZE              
 2000046c  __STACK_TOP               
-00001858  __TI_CINIT_Base           
-00001870  __TI_CINIT_Limit          
-0000183c  __TI_Handler_Table_Base   
-00001848  __TI_Handler_Table_Limit  
+00001860  __TI_CINIT_Base           
+00001878  __TI_CINIT_Limit          
+00001844  __TI_Handler_Table_Base   
+00001850  __TI_Handler_Table_Limit  
 00000e4d  __TI_auto_init            
 200005b0  __TI_cleanup_ptr          
 0000131b  __TI_decompress_none      
@@ -330,10 +331,10 @@ address   name
 0000136b  SysCtlDelay               
 00001371  __TI_decompress_rle24     
 00001377  _system_pre_init          
-0000183c  __TI_Handler_Table_Base   
-00001848  __TI_Handler_Table_Limit  
-00001858  __TI_CINIT_Base           
-00001870  __TI_CINIT_Limit          
+00001844  __TI_Handler_Table_Base   
+00001850  __TI_Handler_Table_Limit  
+00001860  __TI_CINIT_Base           
+00001878  __TI_CINIT_Limit          
 20000000  g_pfnRAMVectors           
 2000026c  __stack                   
 2000046c  __STACK_END               
