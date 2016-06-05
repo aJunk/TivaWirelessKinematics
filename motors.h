@@ -24,18 +24,15 @@ typedef struct motors {
 }motors;
 
 typedef struct move {
-	uint32_t mode;		//to drive in
-	uint32_t direction1;	//to drive
-	uint32_t direction2;	//to drive
-	uint32_t numMicroSteps1;	//to drive
-	uint32_t numMicroSteps2;
+	uint32_t mode;
+	uint32_t direction[2];
+	uint32_t numSteps[2];
 	uint32_t constNumSteps[2];
 	uint32_t numDoAgain;
 }move;
 
 /* ----------------------- DEFINES ----------------------- */
-/* MOTORS */	//For 1 turn: 1/1: 32; 1/2: 64; 1/4: 128; 1/8: 256
-#define FULL_STP 32
+#define FULL_STP 32				//For 1 turn: 1/1: 32; 1/2: 64; 1/4: 128; 1/8: 256
 #define HALF_STP 64
 #define QUARTER_STP 128
 #define MICRO_STP 256
@@ -45,7 +42,6 @@ typedef struct move {
 #define MAX_NUM_MOVES 10
 
 /* ----------------------- GLOBAL VARIABLES ----------------------- */
-/* MOTORS */
 extern motors motor1;
 extern motors motor2;
 extern volatile move gui32_moveQ[MAX_NUM_MOVES];
@@ -59,7 +55,7 @@ extern volatile float angleM2;
 void makeStep (motors *motor);						//sets pins of given motor to make a step
 void setMotorMode (motors *motor, uint32_t mode);	//sets step-mode of given motor
 void setDirection (motors *motor, uint32_t dir);	//sets direction of given motor
-void addMove (uint32_t mode, uint32_t direction1, uint32_t direction2, uint32_t numMicroSteps1, uint32_t numMicroSteps2, uint32_t numDoAgain);	//add a move to queue
+uint8_t addMove (uint32_t mode, uint32_t direction1, uint32_t direction2, uint32_t numMicroSteps1, uint32_t numMicroSteps2, uint32_t numDoAgain);	//add a move to queue
 void calcAngles(void);								//calc actual motor position in deg (CW = +)
 void changeActualMove ();
 void setActualParameters ();

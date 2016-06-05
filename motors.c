@@ -1,7 +1,6 @@
 #include "motors.h"
 
 /* ----------------------- GLOBAL VARIABLES ----------------------- */
-/* MOTORS */
 motors motor1 = {	{SYSCTL_PERIPH_GPIOD, OUTPUT, GPIO_PORTD_BASE, GPIO_PIN_2},
 					{SYSCTL_PERIPH_GPIOP, OUTPUT, GPIO_PORTP_BASE, GPIO_PIN_4},
 					{SYSCTL_PERIPH_GPIOP, OUTPUT, GPIO_PORTP_BASE, GPIO_PIN_5},
@@ -25,7 +24,7 @@ volatile float angleM2 = 0;
 
 /* ----------------------- FUNCTIONS ----------------------- */
 void setMotorMode (motors *motor, uint32_t mode){
-	motor->mode = mode;			//set mode in global var motor
+	motor->mode = mode;			//set mode in global var
 	switch(mode) {
 		case FULL_STP:
 			GPIO_Pin_write(&(motor->ms1), LOW);
@@ -57,50 +56,65 @@ void calcAngles(void){
 }
 
 void makeStep (motors *motor){
+	/* Set motor pin to make a step */
 	if (GPIOPinRead(motor->stp.port_base, motor->stp.pin) & motor->stp.pin) {
 		GPIO_Pin_write(&(motor->stp), LOW);
 	}
 	else {
 		GPIO_Pin_write(&(motor->stp), HIGH);
+
+		/* Recalculate actual number of microsteps done for the gloable motor-var */
 		if (motor->direction == CW_TURN) motor->numTotalMicroSteps = motor->numTotalMicroSteps + MICRO_STP/motor->mode;	//1 for MICRO_STP, 2 for HALF_STP, etc.
 		else motor->numTotalMicroSteps = motor->numTotalMicroSteps - MICRO_STP/motor->mode;
-		if(motor == &motor1) {
-			gui32_moveQ[gui32_actIdx2move].numMicroSteps1--;
-		} else {
-			gui32_moveQ[gui32_actIdx2move].numMicroSteps2--;
-		}
 		calcAngles();
-		if(gui32_moveQ[gui32_actIdx2move].numMicroSteps1 == 0 && gui32_moveQ[gui32_actIdx2move].numMicroSteps2 == 0){
-			changeActualMove();
+
+		/* Recalculate number of steps of moves which have to be done */
+		if(motor == &motor1) {
+			gui32_moveQ[gui32_actIdx2move].numSteps[0]--;
+		} else {
+			gui32_moveQ[gui32_actIdx2move].numSteps[1]--;
 		}
+
+		/* If both motors have finished move go to next move / wait */
+		if(gui32_moveQ[gui32_actIdx2move].numSteps[0] == 0 && gui32_moveQ[gui32_actIdx2move].numSteps[1] == 0) changeActualMove();
 	}
 }
 
-void addMove (uint32_t mode, uint32_t direction1, uint32_t direction2, uint32_t numMicroSteps1, uint32_t numMicroSteps2, uint32_t numDoAgain) {
-	if(checkIfQisFull()) return;	//exit if queue is full
+uint8_t addMove (uint32_t mode, uint32_t direction1, uint32_t direction2, uint32_t numMicroSteps1, uint32_t numMicroSteps2, uint32_t numDoAgain) {
+	/* Exit if queue is already full */
+	if(checkIfQisFull()) return 0;
+
+	/* Write move-information to move-queue */
 	gui32_moveQ[gui32_actIdx2add].mode = mode;
-	gui32_moveQ[gui32_actIdx2add].direction1 = direction1;
-	gui32_moveQ[gui32_actIdx2add].direction2 = direction2;
-	gui32_moveQ[gui32_actIdx2add].numMicroSteps1 = numMicroSteps1;
-	gui32_moveQ[gui32_actIdx2add].numMicroSteps2 = numMicroSteps2;
+	gui32_moveQ[gui32_actIdx2add].direction[0] = direction1;
+	gui32_moveQ[gui32_actIdx2add].direction[1] = direction2;
+	gui32_moveQ[gui32_actIdx2add].numSteps[0]= numMicroSteps1;
+	gui32_moveQ[gui32_actIdx2add].numSteps[1] = numMicroSteps2;
 	gui32_moveQ[gui32_actIdx2add].constNumSteps[0] = numMicroSteps1;
 	gui32_moveQ[gui32_actIdx2add].constNumSteps[1] = numMicroSteps2;
 	gui32_moveQ[gui32_actIdx2add].numDoAgain = numDoAgain;
 	gui32_numMovesInQ++;
-	if(gui32_numMovesInQ == 1){
-		setActualParameters ();
-	}
 
+	/* If there were no moves in Queue the added move has to be done */
+	if(gui32_numMovesInQ == 1) setActualParameters ();
+
+	/* Recalculate position of ring-buffer-write-pointer */
 	if(gui32_actIdx2add == MAX_NUM_MOVES-1) gui32_actIdx2add = 0;		//if end of queue -> start over again
 	else gui32_actIdx2add++;
+
+	return 1;
 }
 
 void changeActualMove (){
 	gui32_numMovesInQ--;
+
+	/* Put move in queue again if it should be done again */
 	if(gui32_moveQ[gui32_actIdx2move].numDoAgain != 0){
 		gui32_moveQ[gui32_actIdx2move].numDoAgain--;
-        addMove (gui32_moveQ[gui32_actIdx2move].mode, gui32_moveQ[gui32_actIdx2move].direction1, gui32_moveQ[gui32_actIdx2move].direction2, gui32_moveQ[gui32_actIdx2move].constNumSteps[0], gui32_moveQ[gui32_actIdx2move].constNumSteps[1], gui32_moveQ[gui32_actIdx2move].numDoAgain);
+        addMove (gui32_moveQ[gui32_actIdx2move].mode, gui32_moveQ[gui32_actIdx2move].direction[0], gui32_moveQ[gui32_actIdx2move].direction[1], gui32_moveQ[gui32_actIdx2move].constNumSteps[0], gui32_moveQ[gui32_actIdx2move].constNumSteps[1], gui32_moveQ[gui32_actIdx2move].numDoAgain);
 	}
+
+	/* Recalculate position of ring-buffer-read-pointer */
 	if(gui32_actIdx2move == MAX_NUM_MOVES-1) gui32_actIdx2move = 0;		//if end of queue -> start over again
 	else gui32_actIdx2move++;
 	setActualParameters();
@@ -108,10 +122,10 @@ void changeActualMove (){
 }
 
 void setActualParameters () {
-		setDirection(&motor1, gui32_moveQ[gui32_actIdx2move].direction1);
-		setMotorMode(&motor1, gui32_moveQ[gui32_actIdx2move].mode);
-		setDirection(&motor2, gui32_moveQ[gui32_actIdx2move].direction2);
-		setMotorMode(&motor2, gui32_moveQ[gui32_actIdx2move].mode);
+	setDirection(&motor1, gui32_moveQ[gui32_actIdx2move].direction[0]);
+	setMotorMode(&motor1, gui32_moveQ[gui32_actIdx2move].mode);
+	setDirection(&motor2, gui32_moveQ[gui32_actIdx2move].direction[1]);
+	setMotorMode(&motor2, gui32_moveQ[gui32_actIdx2move].mode);
 }
 
 uint8_t checkIfQisFull () {
