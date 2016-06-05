@@ -83,6 +83,8 @@ void addMove (uint32_t mode, uint32_t direction1, uint32_t direction2, uint32_t 
 	gui32_moveQ[gui32_actIdx2add].direction2 = direction2;
 	gui32_moveQ[gui32_actIdx2add].numMicroSteps1 = numMicroSteps1;
 	gui32_moveQ[gui32_actIdx2add].numMicroSteps2 = numMicroSteps2;
+	gui32_moveQ[gui32_actIdx2add].constNumSteps[0] = numMicroSteps1;
+	gui32_moveQ[gui32_actIdx2add].constNumSteps[1] = numMicroSteps2;
 	gui32_moveQ[gui32_actIdx2add].numDoAgain = numDoAgain;
 	gui32_numMovesInQ++;
 	if(gui32_numMovesInQ == 1){
@@ -95,11 +97,10 @@ void addMove (uint32_t mode, uint32_t direction1, uint32_t direction2, uint32_t 
 
 void changeActualMove (){
 	gui32_numMovesInQ--;
-	/*if(gui32_moveQ[gui32_actIdx2move].numDoAgain != 0){
+	if(gui32_moveQ[gui32_actIdx2move].numDoAgain != 0){
 		gui32_moveQ[gui32_actIdx2move].numDoAgain--;
-		//gui32_numMovesInQ--;
-        addMove (gui32_moveQ[gui32_actIdx2move].mode, gui32_moveQ[gui32_actIdx2move].direction1, gui32_moveQ[gui32_actIdx2move].direction2, gui32_moveQ[gui32_actIdx2move].numMicroSteps1, gui32_moveQ[gui32_actIdx2move].numMicroSteps2, gui32_moveQ[gui32_actIdx2move].numDoAgain);
-	}*/
+        addMove (gui32_moveQ[gui32_actIdx2move].mode, gui32_moveQ[gui32_actIdx2move].direction1, gui32_moveQ[gui32_actIdx2move].direction2, gui32_moveQ[gui32_actIdx2move].constNumSteps[0], gui32_moveQ[gui32_actIdx2move].constNumSteps[1], gui32_moveQ[gui32_actIdx2move].numDoAgain);
+	}
 	if(gui32_actIdx2move == MAX_NUM_MOVES-1) gui32_actIdx2move = 0;		//if end of queue -> start over again
 	else gui32_actIdx2move++;
 	setActualParameters();

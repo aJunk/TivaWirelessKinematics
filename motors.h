@@ -29,6 +29,7 @@ typedef struct move {
 	uint32_t direction2;	//to drive
 	uint32_t numMicroSteps1;	//to drive
 	uint32_t numMicroSteps2;
+	uint32_t constNumSteps[2];
 	uint32_t numDoAgain;
 }move;
 
