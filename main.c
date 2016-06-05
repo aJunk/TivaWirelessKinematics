@@ -36,8 +36,8 @@ int main(void) {
    initinterrupts();
    IntMasterEnable();		//Enable Processor Interrupts
 
-   addMove (FULL_STP, CW_TURN, CW_TURN, GEAR_CONV_FACTOR*16, 0, LOW);
-   addMove (FULL_STP, CW_TURN, CW_TURN, 0, GEAR_CONV_FACTOR*16, LOW);
+   addMove (FULL_STP, CW_TURN, CW_TURN, GEAR_CONV_FACTOR*16, 0, 0);
+   addMove (FULL_STP, CW_TURN, CW_TURN, 0, GEAR_CONV_FACTOR*16, 0);
  //  addMove (FULL_STP, CCW_TURN, CCW_TURN, GEAR_CONV_FACTOR*128, GEAR_CONV_FACTOR*128, LOW);
  //  addMove (FULL_STP, CW_TURN, CCW_TURN, 64*16, 64*32, LOW);
  //  ms_delay(16000);
@@ -95,12 +95,14 @@ void ISR_gpioUsrSW(void) {
     if(GPIOIntStatus(buttons[0].port_base, false) & buttons[0].pin) {	//if USRSW1 pressed
         GPIOIntClear(buttons[0].port_base, buttons[0].pin);	    	//Clear the GPIO interrupt
     	//something happens
-        addMove (FULL_STP, CW_TURN, CW_TURN, GEAR_CONV_FACTOR*32, 0, 0);
+        addMove (FULL_STP, CW_TURN, CW_TURN, GEAR_CONV_FACTOR*8, 0, 0);
+        ms_delay(20);
     }
     else {
         GPIOIntClear(buttons[1].port_base, buttons[1].pin);	    	//Clear the GPIO interrupt
     	//something happens
-        addMove (HALF_STP, CCW_TURN, CCW_TURN, 0, GEAR_CONV_FACTOR*2, 1);
+        addMove (FULL_STP, CCW_TURN, CCW_TURN, 0, GEAR_CONV_FACTOR*8, 1);
+        ms_delay(20);
     }
 }
 
@@ -137,5 +139,5 @@ void ISR_SystickHandler(void) {
 		accFactor2 = 6;
 		systickcounterTotal = 0;
 	}
-	if(gui32_moveQ[gui32_actIdx2move].numMicroSteps1 == 0 && gui32_moveQ[gui32_actIdx2move].numMicroSteps2 == 0 && gui32_numMovesInQ != 0) changeActualMove();	//look for new moves in Q
+	//if(gui32_moveQ[gui32_actIdx2move].numMicroSteps1 == 0 && gui32_moveQ[gui32_actIdx2move].numMicroSteps2 == 0 && gui32_numMovesInQ != 0) changeActualMove();	//look for new moves in Q
 }

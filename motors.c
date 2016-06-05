@@ -71,29 +71,13 @@ void makeStep (motors *motor){
 		}
 		calcAngles();
 		if(gui32_moveQ[gui32_actIdx2move].numMicroSteps1 == 0 && gui32_moveQ[gui32_actIdx2move].numMicroSteps2 == 0){
-			gui32_numMovesInQ--;
 			changeActualMove();
 		}
 	}
 }
 
 void addMove (uint32_t mode, uint32_t direction1, uint32_t direction2, uint32_t numMicroSteps1, uint32_t numMicroSteps2, uint32_t numDoAgain) {
-	uint8_t noFreeSpace = 1;	//set to 0 if there is a free space in the queue
-	uint8_t i = 0;
-
-	for(i = 0; i < MAX_NUM_MOVES; i++) {
-		if(gui32_moveQ[i].numMicroSteps1 == 0 && gui32_moveQ[i].numMicroSteps2 == 0){
-			gui32_actIdx2add = i;
-			noFreeSpace = 0;
-			GPIO_Pin_write(&(leds[0]), LOW);
-			break;
-		}
-	}
-	if(noFreeSpace == 1) {
-		GPIO_Pin_write(&(leds[0]), HIGH);
-		return;
-	}
-
+	if(checkIfQisFull()) return;	//exit if queue is full
 	gui32_moveQ[gui32_actIdx2add].mode = mode;
 	gui32_moveQ[gui32_actIdx2add].direction1 = direction1;
 	gui32_moveQ[gui32_actIdx2add].direction2 = direction2;
@@ -101,18 +85,38 @@ void addMove (uint32_t mode, uint32_t direction1, uint32_t direction2, uint32_t 
 	gui32_moveQ[gui32_actIdx2add].numMicroSteps2 = numMicroSteps2;
 	gui32_moveQ[gui32_actIdx2add].numDoAgain = numDoAgain;
 	gui32_numMovesInQ++;
-	return;
+	if(gui32_numMovesInQ == 1){
+		setActualParameters ();
+	}
+
+	if(gui32_actIdx2add == MAX_NUM_MOVES-1) gui32_actIdx2add = 0;		//if end of queue -> start over again
+	else gui32_actIdx2add++;
 }
 
 void changeActualMove (){
-	if(gui32_moveQ[gui32_actIdx2move].numDoAgain != 0){
+	gui32_numMovesInQ--;
+	/*if(gui32_moveQ[gui32_actIdx2move].numDoAgain != 0){
 		gui32_moveQ[gui32_actIdx2move].numDoAgain--;
+		//gui32_numMovesInQ--;
         addMove (gui32_moveQ[gui32_actIdx2move].mode, gui32_moveQ[gui32_actIdx2move].direction1, gui32_moveQ[gui32_actIdx2move].direction2, gui32_moveQ[gui32_actIdx2move].numMicroSteps1, gui32_moveQ[gui32_actIdx2move].numMicroSteps2, gui32_moveQ[gui32_actIdx2move].numDoAgain);
-	}
+	}*/
 	if(gui32_actIdx2move == MAX_NUM_MOVES-1) gui32_actIdx2move = 0;		//if end of queue -> start over again
 	else gui32_actIdx2move++;
-	setDirection(&motor1, gui32_moveQ[gui32_actIdx2move].direction1);
-	setMotorMode(&motor1, gui32_moveQ[gui32_actIdx2move].mode);
-	setDirection(&motor2, gui32_moveQ[gui32_actIdx2move].direction2);
-	setMotorMode(&motor2, gui32_moveQ[gui32_actIdx2move].mode);
+	setActualParameters();
+	checkIfQisFull ();
+}
+
+void setActualParameters () {
+		setDirection(&motor1, gui32_moveQ[gui32_actIdx2move].direction1);
+		setMotorMode(&motor1, gui32_moveQ[gui32_actIdx2move].mode);
+		setDirection(&motor2, gui32_moveQ[gui32_actIdx2move].direction2);
+		setMotorMode(&motor2, gui32_moveQ[gui32_actIdx2move].mode);
+}
+
+uint8_t checkIfQisFull () {
+	if(gui32_numMovesInQ == MAX_NUM_MOVES){
+		GPIO_Pin_write(&(leds[0]), HIGH);
+		return 1;
+	} else GPIO_Pin_write(&(leds[0]), LOW);
+	return 0;
 }

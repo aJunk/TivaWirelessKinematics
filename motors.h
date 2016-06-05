@@ -24,14 +24,12 @@ typedef struct motors {
 }motors;
 
 typedef struct move {
-	//motors *motor;
 	uint32_t mode;		//to drive in
 	uint32_t direction1;	//to drive
 	uint32_t direction2;	//to drive
 	uint32_t numMicroSteps1;	//to drive
 	uint32_t numMicroSteps2;
 	uint32_t numDoAgain;
-	//struct move *nextMove;
 }move;
 
 /* ----------------------- DEFINES ----------------------- */
@@ -63,5 +61,7 @@ void setDirection (motors *motor, uint32_t dir);	//sets direction of given motor
 void addMove (uint32_t mode, uint32_t direction1, uint32_t direction2, uint32_t numMicroSteps1, uint32_t numMicroSteps2, uint32_t numDoAgain);	//add a move to queue
 void calcAngles(void);								//calc actual motor position in deg (CW = +)
 void changeActualMove ();
+void setActualParameters ();
+uint8_t checkIfQisFull ();
 
 #endif
