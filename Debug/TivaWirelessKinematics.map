@@ -1,7 +1,7 @@
 ******************************************************************************
                   TI ARM Linker PC v5.2.2                      
 ******************************************************************************
->> Linked Sun Jun 05 11:29:01 2016
+>> Linked Sun Jun 05 13:44:49 2016
 
 OUTPUT FILE NAME:   <TivaWirelessKinematics.out>
 ENTRY POINT SYMBOL: "_c_int00"  address: 00000fed
@@ -11,7 +11,7 @@ MEMORY CONFIGURATION
 
          name            origin    length      used     unused   attr    fill
 ----------------------  --------  ---------  --------  --------  ----  --------
-  FLASH                 00000000   00100000  0000187e  000fe782  R  X
+  FLASH                 00000000   00100000  00001876  000fe78a  R  X
   SRAM                  20000000   00040000  000006f8  0003f908  RW X
 
 
@@ -19,11 +19,11 @@ SEGMENT ALLOCATION MAP
 
 run origin  load origin   length   init length attrs members
 ----------  ----------- ---------- ----------- ----- -------
-00000000    00000000    00001880   00001880    r-x
+00000000    00000000    00001878   00001878    r-x
   00000000    00000000    00000208   00000208    r-- .intvecs
   00000208    00000208    0000117a   0000117a    r-x .text
   00001384    00001384    000003b4   000003b4    r-- .const
-  00001738    00001738    00000148   00000148    r-- .cinit
+  00001738    00001738    00000140   00000140    r-- .cinit
 20000000    20000000    000006f8   00000000    rw-
   20000000    20000000    0000026c   00000000    rw- .vtable
   2000026c    2000026c    00000200   00000000    rw- .stack
@@ -98,14 +98,12 @@ section   page    origin      length       input sections
                   00001700    00000030                   : sysctl.obj (.const:g_sXTALtoMEMTIM)
                   00001730    00000008                   : sysctl.obj (.const)
 
-.cinit     0    00001738    00000148     
-                  00001738    0000010d     (.cinit..data.load) [load image, compression = rle]
-                  00001845    00000003     --HOLE-- [fill = 0]
-                  00001848    0000000c     (__TI_handler_table)
-                  00001854    00000004     --HOLE-- [fill = 0]
-                  00001858    00000008     (.cinit..bss.load) [load image, compression = zero_init]
-                  00001860    00000008     (.cinit..vtable.load) [load image, compression = zero_init]
-                  00001868    00000018     (__TI_cinit_table)
+.cinit     0    00001738    00000140     
+                  00001738    0000010c     (.cinit..data.load) [load image, compression = rle]
+                  00001844    0000000c     (__TI_handler_table)
+                  00001850    00000008     (.cinit..bss.load) [load image, compression = zero_init]
+                  00001858    00000008     (.cinit..vtable.load) [load image, compression = zero_init]
+                  00001860    00000018     (__TI_cinit_table)
 
 .init_array 
 *          0    00000000    00000000     UNINITIALIZED
@@ -140,15 +138,15 @@ section   page    origin      length       input sections
 
 LINKER GENERATED COPY TABLES
 
-__TI_cinit_table @ 00001868 records: 3, size/record: 8, table size: 24
-	.data: load addr=00001738, load size=0000010d bytes, run addr=2000046c, run size=0000014c bytes, compression=rle
-	.bss: load addr=00001858, load size=00000008 bytes, run addr=200005b8, run size=00000140 bytes, compression=zero_init
-	.vtable: load addr=00001860, load size=00000008 bytes, run addr=20000000, run size=0000026c bytes, compression=zero_init
+__TI_cinit_table @ 00001860 records: 3, size/record: 8, table size: 24
+	.data: load addr=00001738, load size=0000010c bytes, run addr=2000046c, run size=0000014c bytes, compression=rle
+	.bss: load addr=00001850, load size=00000008 bytes, run addr=200005b8, run size=00000140 bytes, compression=zero_init
+	.vtable: load addr=00001858, load size=00000008 bytes, run addr=20000000, run size=0000026c bytes, compression=zero_init
 
 
 LINKER GENERATED HANDLER TABLE
 
-__TI_handler_table @ 00001848 records: 3, size/record: 4, table size: 12
+__TI_handler_table @ 00001844 records: 3, size/record: 4, table size: 12
 	index: 0, handler: __TI_zero_init
 	index: 1, handler: __TI_decompress_rle24
 	index: 2, handler: __TI_decompress_none
@@ -192,10 +190,10 @@ UNDEFED   SHT$$INIT_ARRAY$$Limit
 2000046c  __STACK_END               
 00000200  __STACK_SIZE              
 2000046c  __STACK_TOP               
-00001868  __TI_CINIT_Base           
-00001880  __TI_CINIT_Limit          
-00001848  __TI_Handler_Table_Base   
-00001854  __TI_Handler_Table_Limit  
+00001860  __TI_CINIT_Base           
+00001878  __TI_CINIT_Limit          
+00001844  __TI_Handler_Table_Base   
+00001850  __TI_Handler_Table_Limit  
 00000e55  __TI_auto_init            
 200005ac  __TI_cleanup_ptr          
 00001323  __TI_decompress_none      
@@ -331,10 +329,10 @@ address   name
 00001373  SysCtlDelay               
 00001379  __TI_decompress_rle24     
 0000137f  _system_pre_init          
-00001848  __TI_Handler_Table_Base   
-00001854  __TI_Handler_Table_Limit  
-00001868  __TI_CINIT_Base           
-00001880  __TI_CINIT_Limit          
+00001844  __TI_Handler_Table_Base   
+00001850  __TI_Handler_Table_Limit  
+00001860  __TI_CINIT_Base           
+00001878  __TI_CINIT_Limit          
 20000000  g_pfnRAMVectors           
 2000026c  __stack                   
 2000046c  __STACK_END               
