@@ -48,17 +48,70 @@ extern volatile move gui32_moveQ[MAX_NUM_MOVES];
 extern volatile uint32_t gui32_actIdx2move;
 extern volatile uint32_t gui32_actIdx2add;
 extern volatile uint32_t gui32_numMovesInQ;
+extern volatile uint8_t gui32_actualInMove;
 extern volatile float angleM1;
 extern volatile float angleM2;
 
 /* ----------------------- FUNCTION PROTOTYPES ----------------------- */
-void makeStep (motors *motor);						//sets pins of given motor to make a step
-void setMotorMode (motors *motor, uint32_t mode);	//sets step-mode of given motor
-void setDirection (motors *motor, uint32_t dir);	//sets direction of given motor
-uint8_t addMove (uint32_t mode, uint32_t direction1, uint32_t direction2, uint32_t numMicroSteps1, uint32_t numMicroSteps2, uint32_t numDoAgain);	//add a move to queue
-void calcAngles(void);								//calc actual motor position in deg (CW = +)
-void changeActualMove ();
-void setActualParameters ();
+void setMotorMode (motors *motor, uint32_t mode);
+/* Sets appropriate pins of given motor to drive in given mode and sets mode-variable in global motor-variable
+ * Parameters:		motors *motor 	is the pointer to the motor of which the mode should be changed
+ * 					uint32_t mode 	is the mode the motor should be set to. For possibilities see defines
+ * Return value: none
+ */
+
+void setDirection (motors *motor, uint32_t dir);
+/* Sets appropriate pins of given motor to drive in given direction and sets direction-variable in global motor-variable
+ * Parameters:		motors *motor 	is the pointer to the motor of which the direction should be changed
+ * 					uint32_t dir 	is the direction the motor should be set to. For possibilities see defines
+ * Return value: none
+ */
+
 uint8_t checkIfQisFull ();
+/* Sets a led if the move-queue is full
+ * Parameters: none
+ * Return value: 	1	if queue is full
+ * 					0	if there is at least 1 free space in queue
+ */
+
+uint8_t addMove (uint32_t mode, uint32_t direction1, uint32_t direction2, uint32_t numSteps1, uint32_t numSteps2, uint32_t numDoAgain);
+/* Adds a move to the move-queue if queue is not full. Recalculates position of ring-buffer-write-pointer (gui32_actIdx2add).
+ * Sets actual move-parameters if there were no moves in the queue.
+ * Parameters:	uint32_t mode			is the mode to make the move in
+ * 				uint32_t direction1		is the direction of motor1 to make the move in
+ * 				uint32_t direction2		is the direction of motor2 to make the move in
+ * 				uint32_t numSteps1		is the number of steps motor1 should make
+ * 				uint32_t numSteps2		is the number of steps motor2 should make
+ * 				uint32_t numDoAgain		if != 0 the move is put in move-queue again after move is done
+ * Return value: 	1	if move is added to queue
+ * 					0	if move could not be added to queue
+ */
+
+void changeActualMove (void);
+/* Is called if a move is finished. Recalculates position of ring-buffer-read-pointer (which move is the next to be done).
+ * Decreases number of moves in queue. Puts move in queue again if it should be done again (numDoAgain != 0)
+ * Parameters: none
+ * Return value: none
+ */
+
+void setActualParameters (void);
+/* Is called if a move new move should be done. Calls setMotorMode and setDirection to set appropriate pins of motor1 and motor2
+ * Parameters: none
+ * Return value: none
+ */
+
+void makeStep (motors *motor);
+/* Sets appropriate pin of make a step with the given motor. Calculates number of steps done with given motor and stores it in
+ * global motor-variable. Calculates number of steps to do left in actual move. Calls changeActualMove() if both motors have
+ * finished moving.
+ * Parameters:		motors *motor 	is the pointer to the motor with which a step should be done
+ * Return value: none
+ */
+
+void calcAngles (void);
+/* Recalculates angle of motors done since init to visually keep control of position. Positive direction is clockwise.
+ * Parameters: none
+ * Return value: none
+ */
 
 #endif

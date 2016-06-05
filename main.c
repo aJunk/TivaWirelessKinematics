@@ -24,10 +24,28 @@
 volatile uint32_t gui32_SysClock = 0;
 
 /* ----------------------- FUNCTION PROTOTYPES ----------------------- */
-void ISR_gpioUsrSW (void);								//Interrupt service Routine to Handle UsrSW Interrupt
-void ISR_SystickHandler(void);							//Interrupt service Routine
-void inithardware (void);								//Initialises Hardware (inputs/outputs)
-void initinterrupts (void);								//Initialises Interrupts
+void inithardware (void);
+/* Initializes clock, buttonpins, ledpins, motorpins.
+ * Parameters: none
+ * Return value: none
+ */
+
+void initinterrupts (void);
+/* Initializes timer-interrupts and interrupts for UsrSW
+ * Parameters: none
+ * Return value: none
+ */
+
+void ISR_gpioUsrSW (void);
+/* Interrupt service Routine to Handle UsrSW Interrupts
+ * Parameters: none
+ * Return value: none
+ */
+void ISR_SystickHandler(void);
+/* Interrupt service Routine to Make motor movements
+ * Parameters: none
+ * Return value: none
+ */
 
 /* ----------------------- FUNCTIONS ----------------------- */
 int main(void) {
@@ -94,25 +112,31 @@ void ISR_gpioUsrSW(void) {
 void ISR_SystickHandler(void) {
 	static uint32_t systickcounter = 0;
 	static uint32_t systickcounterTotal = 0;
-	static uint8_t StartAccFactor[2] = {30, 30};	//how slow should acceloration start (higher = slower)
+	static uint8_t StartAccFactor[2] = {6, 6};		//how slow should acceloration start (higher = slower)
 	uint8_t finalAccFactor[2] = {2, 2};				//to drive move in
 	static uint8_t accSpeed = 100;					//how fast should it become faster (lower = faster)
 
 	systickcounter++;
 	systickcounterTotal++;
 
+	if(gui32_actualInMove == 0) {
+		if(gui32_moveQ[gui32_actIdx2move].direction[0] != gui32_moveQ[gui32_actIdx2move-1].direction[0] && gui32_moveQ[gui32_actIdx2move-1].constNumSteps[0] != 0) StartAccFactor[0] = 6;
+		if(gui32_moveQ[gui32_actIdx2move].direction[1] != gui32_moveQ[gui32_actIdx2move-1].direction[1] && gui32_moveQ[gui32_actIdx2move-1].constNumSteps[1] != 0) StartAccFactor[1] = 6;
+	}
+
 	if((systickcounterTotal % accSpeed) == 0 && StartAccFactor[0] != finalAccFactor[0]) StartAccFactor[0]--;
 	if (gui32_moveQ[gui32_actIdx2move].numSteps[0] > 0){
-		if(systickcounter >= StartAccFactor[0])	{	//counter läuft 1000 mal pro sekunde über
+		if(systickcounter >= StartAccFactor[0])	{
 			makeStep(&motor1);
 			if (gui32_moveQ[gui32_actIdx2move].numSteps[1] == 0) systickcounter = 0; //otherwise motor2 would not move because systickcounter is set to 0
 		}
-	} else StartAccFactor[0] = 30;
+	} else StartAccFactor[0] = 6;
+
 	if((systickcounterTotal % accSpeed) == 0 && StartAccFactor[1] != finalAccFactor[1]) StartAccFactor[1]--;
 	if (gui32_moveQ[gui32_actIdx2move].numSteps[1] > 0){
-		if(systickcounter >= StartAccFactor[1])	{	//counter läuft 1000 mal pro sekunde über
+		if(systickcounter >= StartAccFactor[1])	{
 			makeStep(&motor2);
 			systickcounter = 0;
 		}
-	} else StartAccFactor[1] = 30;
+	} else StartAccFactor[1] = 6;
 }
