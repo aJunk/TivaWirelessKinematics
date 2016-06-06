@@ -100,12 +100,12 @@ void ISR_gpioUsrSW(void) {
     if(GPIOIntStatus(buttons[0].port_base, false) & buttons[0].pin) {	//if USRSW1 pressed
         GPIOIntClear(buttons[0].port_base, buttons[0].pin);
         addMove (FULL_STP, CW_TURN, CW_TURN, GEAR_CONV_FACTOR*8, 0, 0);
-        ms_delay(20);	//debounce
+        //ms_delay(20);	//debounce
     }
     else {
         GPIOIntClear(buttons[1].port_base, buttons[1].pin);
         addMove (FULL_STP, CCW_TURN, CCW_TURN, 0, GEAR_CONV_FACTOR*8, 1);
-        ms_delay(20);
+        //ms_delay(20);
     }
 }
 
@@ -119,21 +119,21 @@ void ISR_SystickHandler(void) {
 	systickcounter++;
 	systickcounterTotal++;
 
-	if(gui32_actualInMove == 0) {
-		if(gui32_moveQ[gui32_actIdx2move].direction[0] != gui32_moveQ[gui32_actIdx2move-1].direction[0] && gui32_moveQ[gui32_actIdx2move-1].constNumSteps[0] != 0) StartAccFactor[0] = 6;
-		if(gui32_moveQ[gui32_actIdx2move].direction[1] != gui32_moveQ[gui32_actIdx2move-1].direction[1] && gui32_moveQ[gui32_actIdx2move-1].constNumSteps[1] != 0) StartAccFactor[1] = 6;
+	if(gui8_actualInMove == 0) {
+		if(moveQ[gui8_actIdx2move].direction[0] != moveQ[gui8_actIdx2move-1].direction[0] && moveQ[gui8_actIdx2move-1].constNumSteps[0] != 0) StartAccFactor[0] = 6;
+		if(moveQ[gui8_actIdx2move].direction[1] != moveQ[gui8_actIdx2move-1].direction[1] && moveQ[gui8_actIdx2move-1].constNumSteps[1] != 0) StartAccFactor[1] = 6;
 	}
 
 	if((systickcounterTotal % accSpeed) == 0 && StartAccFactor[0] != finalAccFactor[0]) StartAccFactor[0]--;
-	if (gui32_moveQ[gui32_actIdx2move].numSteps[0] > 0){
+	if (moveQ[gui8_actIdx2move].numSteps[0] > 0){
 		if(systickcounter >= StartAccFactor[0])	{
 			makeStep(&motor1);
-			if (gui32_moveQ[gui32_actIdx2move].numSteps[1] == 0) systickcounter = 0; //otherwise motor2 would not move because systickcounter is set to 0
+			if (moveQ[gui8_actIdx2move].numSteps[1] == 0) systickcounter = 0; //otherwise motor2 would not move because systickcounter is set to 0
 		}
 	} else StartAccFactor[0] = 6;
 
 	if((systickcounterTotal % accSpeed) == 0 && StartAccFactor[1] != finalAccFactor[1]) StartAccFactor[1]--;
-	if (gui32_moveQ[gui32_actIdx2move].numSteps[1] > 0){
+	if (moveQ[gui8_actIdx2move].numSteps[1] > 0){
 		if(systickcounter >= StartAccFactor[1])	{
 			makeStep(&motor2);
 			systickcounter = 0;

@@ -18,17 +18,17 @@ typedef struct motors {
 	udef_GPIO_Pin dir;
 	udef_GPIO_Pin stp;
 	udef_GPIO_Pin en;
-	uint32_t direction;	//actual set direction
-	uint32_t mode;		//actual set mode - For 1 turn: 1/1: 32; 1/2: 64; 1/4: 128; 1/8: 256
-	int32_t numTotalMicroSteps;	// in cw direction
+	uint8_t direction;	//actual set direction
+	uint8_t mode;		//actual set mode - For 1 turn: 1/1: 32; 1/2: 64; 1/4: 128; 1/8: 256
+	int32_t numTotalMicroSteps;		//in cw direction
 }motors;
 
 typedef struct move {
-	uint32_t mode;
-	uint32_t direction[2];
+	uint8_t mode;
+	uint8_t direction[2];
 	uint32_t numSteps[2];
 	uint32_t constNumSteps[2];
-	uint32_t numDoAgain;
+	uint8_t numDoAgain;
 }move;
 
 /* ----------------------- DEFINES ----------------------- */
@@ -44,26 +44,26 @@ typedef struct move {
 /* ----------------------- GLOBAL VARIABLES ----------------------- */
 extern motors motor1;
 extern motors motor2;
-extern volatile move gui32_moveQ[MAX_NUM_MOVES];
-extern volatile uint32_t gui32_actIdx2move;
-extern volatile uint32_t gui32_actIdx2add;
-extern volatile uint32_t gui32_numMovesInQ;
-extern volatile uint8_t gui32_actualInMove;
+extern volatile move moveQ[MAX_NUM_MOVES];
+extern volatile uint8_t gui8_actIdx2move;
+extern volatile uint8_t gui8_actIdx2add;
+extern volatile uint8_t gui8_numMovesInQ;
+extern volatile uint8_t gui8_actualInMove;
 extern volatile float angleM1;
 extern volatile float angleM2;
 
 /* ----------------------- FUNCTION PROTOTYPES ----------------------- */
-void setMotorMode (motors *motor, uint32_t mode);
+void setMotorMode (motors *motor, uint8_t mode);
 /* Sets appropriate pins of given motor to drive in given mode and sets mode-variable in global motor-variable
  * Parameters:		motors *motor 	is the pointer to the motor of which the mode should be changed
- * 					uint32_t mode 	is the mode the motor should be set to. For possibilities see defines
+ * 					uint8_t mode 	is the mode the motor should be set to. For possibilities see defines
  * Return value: none
  */
 
-void setDirection (motors *motor, uint32_t dir);
+void setDirection (motors *motor, uint8_t dir);
 /* Sets appropriate pins of given motor to drive in given direction and sets direction-variable in global motor-variable
  * Parameters:		motors *motor 	is the pointer to the motor of which the direction should be changed
- * 					uint32_t dir 	is the direction the motor should be set to. For possibilities see defines
+ * 					uint8_t dir 	is the direction the motor should be set to. For possibilities see defines
  * Return value: none
  */
 
@@ -74,15 +74,15 @@ uint8_t checkIfQisFull ();
  * 					0	if there is at least 1 free space in queue
  */
 
-uint8_t addMove (uint32_t mode, uint32_t direction1, uint32_t direction2, uint32_t numSteps1, uint32_t numSteps2, uint32_t numDoAgain);
-/* Adds a move to the move-queue if queue is not full. Recalculates position of ring-buffer-write-pointer (gui32_actIdx2add).
+uint8_t addMove (uint8_t mode, uint8_t direction1, uint8_t direction2, uint32_t numSteps1, uint32_t numSteps2, uint8_t numDoAgain);
+/* Adds a move to the move-queue if queue is not full. Recalculates position of ring-buffer-write-pointer (gui8_actIdx2add).
  * Sets actual move-parameters if there were no moves in the queue.
- * Parameters:	uint32_t mode			is the mode to make the move in
- * 				uint32_t direction1		is the direction of motor1 to make the move in
- * 				uint32_t direction2		is the direction of motor2 to make the move in
+ * Parameters:	uint8_t mode			is the mode to make the move in
+ * 				uint8_t direction1		is the direction of motor1 to make the move in
+ * 				uint8_t direction2		is the direction of motor2 to make the move in
  * 				uint32_t numSteps1		is the number of steps motor1 should make
  * 				uint32_t numSteps2		is the number of steps motor2 should make
- * 				uint32_t numDoAgain		if != 0 the move is put in move-queue again after move is done
+ * 				uint8_t numDoAgain		if != 0 the move is put in move-queue again after move is done
  * Return value: 	1	if move is added to queue
  * 					0	if move could not be added to queue
  */
