@@ -36,8 +36,23 @@ extern udef_GPIO_Pin leds[4];
 extern udef_GPIO_Pin buttons[2];
 
 /* ----------------------- FUNCTION PROTOTYPES ----------------------- */
-void ms_delay (uint32_t ms);													//wait for a given number of ms
-void udef_GPIO_Pin_set_function (udef_GPIO_Pin *pins, uint8_t num_of_pins);		//inits pins, number of pins must be given
-void GPIO_Pin_write (udef_GPIO_Pin *pin2set, uint32_t h_or_l);					//sets pin2set to a given state (HIGH or LOW)
+void ms_delay (uint32_t ms);
+/*Waits for a given number milliseconds
+* Parameters:	uint32_t ms		is the number of milliseconds to wait
+* Return value:	none
+*/
+
+void udef_GPIO_Pin_set_function (udef_GPIO_Pin *pins, uint8_t num_of_pins);
+/*Calls all necessary functions to initialize given pins. Pin-type, port-base and pin must be saved in struct udef_GPIO_Pin
+* Parameters: 	udef_GPIO_Pin *pins		is the struct containing all pins to be initialized
+				uint8_t num_of_pins		is the number of pins in *pins to be initialized
+* Return value:	none
+*/
+void GPIO_Pin_write (udef_GPIO_Pin *pin2set, uint8_t h_or_l);
+/*
+* Parameters:	udef_GPIO_Pin *pins		is the struct containing all pin-information of the pin which should be set
+				uint8_t h_or_l			is the state the pin should be set to. Use defines HIGH or LOW
+* Return value:	none
+*/
 
 #endif

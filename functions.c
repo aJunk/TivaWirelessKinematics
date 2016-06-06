@@ -13,6 +13,13 @@ udef_GPIO_Pin buttons[2] = {	{SYSCTL_PERIPH_GPIOJ, INPUT, GPIO_PORTJ_BASE, GPIO_
 								};
 
 /* ----------------------- FUNCTIONS ----------------------- */
+void ms_delay(uint32_t ms){
+	if(ms != 0){
+		ms = (F_CPU/3000) * ms;
+		SysCtlDelay(ms);
+	}
+}
+
 void udef_GPIO_Pin_set_function(udef_GPIO_Pin *pins, uint8_t num_of_pins){
 	int i = 0;
     uint32_t _ui32Strength;
@@ -36,13 +43,6 @@ void udef_GPIO_Pin_set_function(udef_GPIO_Pin *pins, uint8_t num_of_pins){
 	}
 }
 
-void GPIO_Pin_write (udef_GPIO_Pin *pin2set, uint32_t h_or_l){
+void GPIO_Pin_write (udef_GPIO_Pin *pin2set, uint8_t h_or_l){
 	GPIOPinWrite(pin2set->port_base, pin2set->pin, h_or_l);
-}
-
-void ms_delay(uint32_t ms){
-	if(ms != 0){
-		ms = (F_CPU/3000) * ms;
-		SysCtlDelay(ms);
-	}
 }
